@@ -4,7 +4,7 @@
 
 ## 一、通过 wget 安装
 ### 一键脚本自定义
-自定义端口参数如：AL_PORTS=8443-8445 (也可用 AL_PORTS=8443,8444,8445 来表达) RE_PORT=443 (此为reality端口，注意端口占用问题) AL_DOMAIN=my.domain.com(服务器解析的域名) RE_SNI=www.java.com(此为reality协议证书地址)、API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t53FSRoAFohdYr9HFY（此为acme通过CF api方式申请证书），使用时请自行定义此参数！
+自定义端口参数如：AL_PORTS=8443-8445 (也可用 AL_PORTS=8443,8444,8445 来表达) RE_PORT=443 (此为reality端口，注意端口占用问题) AL_DOMAIN=my.domain.com (服务器解析的域名) RE_SNI=www.java.com (此为reality协议证书地址)、API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t53FSRoAFohdYr9HFY（此为acme通过CF api方式申请证书），使用时请自行定义此参数！
 ```bash
 AL_PORTS=8443-8445 RE_PORT=443 AL_DOMAIN=my.domain.com RE_SNI=www.java.com API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t58FSRoAFohiYr9HFY wget -O - https://raw.githubusercontent.com/hide3110/sb-debian/main/install.sh | sh
 ```
