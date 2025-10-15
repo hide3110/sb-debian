@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # sing-box Debian/Ubuntu Linux 安装脚本
 
@@ -32,31 +32,38 @@ RE_SNI=${RE_SNI:-music.apple.com}
 API_TOKEN=${API_TOKEN:-K3Xo_z-SayrFiyQ7icsio0t5lDSRoCFogdYr7HFY}
 
 # 解析端口（支持范围表示法）
-if [[ "$AL_PORTS" =~ ^([0-9]+)-([0-9]+)$ ]]; then
-    # 范围表示法: 8443-8445
-    START_PORT=${BASH_REMATCH[1]}
-    END_PORT=${BASH_REMATCH[2]}
-    
-    PORT_COUNT=$((END_PORT - START_PORT + 1))
-    if [ $PORT_COUNT -ne 3 ]; then
-        print_error "端口范围必须包含3个端口，当前为 $PORT_COUNT 个"
-        exit 1
-    fi
-    
-    SS_PORT=$START_PORT
-    TR_PORT=$((START_PORT + 1))
-    WS_PORT=$((START_PORT + 2))
-else
-    # 逗号分隔表示法: 8443,9443,10443
-    IFS=',' read -ra PORT_ARRAY <<< "$AL_PORTS"
-    SS_PORT=${PORT_ARRAY[0]:-65031}
-    TR_PORT=${PORT_ARRAY[1]:-65032}
-    WS_PORT=${PORT_ARRAY[2]:-65033}
-fi
+case "$AL_PORTS" in
+    *-*)
+        # 范围表示法: 8443-8445
+        START_PORT=$(echo "$AL_PORTS" | cut -d'-' -f1)
+        END_PORT=$(echo "$AL_PORTS" | cut -d'-' -f2)
+        
+        PORT_COUNT=$((END_PORT - START_PORT + 1))
+        if [ $PORT_COUNT -ne 3 ]; then
+            print_error "端口范围必须包含3个端口，当前为 $PORT_COUNT 个"
+            exit 1
+        fi
+        
+        SS_PORT=$START_PORT
+        TR_PORT=$((START_PORT + 1))
+        WS_PORT=$((START_PORT + 2))
+        ;;
+    *)
+        # 逗号分隔表示法: 8443,9443,10443
+        SS_PORT=$(echo "$AL_PORTS" | cut -d',' -f1)
+        TR_PORT=$(echo "$AL_PORTS" | cut -d',' -f2)
+        WS_PORT=$(echo "$AL_PORTS" | cut -d',' -f3)
+        
+        # 设置默认值
+        SS_PORT=${SS_PORT:-65031}
+        TR_PORT=${TR_PORT:-65032}
+        WS_PORT=${WS_PORT:-65033}
+        ;;
+esac
 
 # 安装 sing-box
 print_info "正在安装 sing-box $SING_BOX_VERSION ..."
-curl -fsSL https://sing-box.app/install.sh | bash -s -- --version "$SING_BOX_VERSION" > /dev/null 2>&1
+curl -fsSL https://sing-box.app/install.sh | sh -s -- --version "$SING_BOX_VERSION" > /dev/null 2>&1
 
 # 创建目录
 CONFIG_DIR="/etc/sing-box"
