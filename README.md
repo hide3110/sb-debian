@@ -1,6 +1,6 @@
 # sing-box脚本
 
-这个 Bash 脚本可以帮助你在 alpine 系统快速部署 sing-box 代理服务器。
+这个 Bash 脚本可以帮助你在 debian 系统快速部署 sing-box 代理服务器。
 
 ### 通过 curl 一键脚本自定义安装
 自定义端口参数如：AL_PORTS=8443-8445 (也可用 AL_PORTS=8443,8444,8445 来表达) RE_PORT=443 (此为reality端口，注意端口占用问题) AL_DOMAIN=my.domain.com (服务器解析的域名) RE_SNI=www.java.com (此为reality协议证书地址)、API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t53FSRoAFohdYr9HFY（此为acme通过CF api方式申请证书），使用时请自行定义此参数！
