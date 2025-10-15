@@ -16,6 +16,7 @@ AL_PORTS=8443-8445 RE_PORT=443 AL_DOMAIN=my.domain.com RE_SNI=www.java.com API_T
 ## 详细说明
 
 - 脚本使用的acme申请证书
+- 默认安装sing-box 1.11.15版本，可自定版本安装，需要自行修改配置文件
 - 此脚本仅安装了ss、trojan、vless-wss和reality四个协议
 
 
