@@ -8,9 +8,9 @@
 AL_PORTS=8443-8445 RE_PORT=443 AL_DOMAIN=my.domain.com RE_SNI=www.java.com API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t58FSRoAFohiYr9HFY bash <(curl -fsSL https://raw.githubusercontent.com/hide3110/sb-debian/main/install.sh)
 ```
 ### 安装指定版本号
-可以在脚本bash最后添加sing-box版本号，如1.11.4
+可以在脚本最后添加sing-box版本号，如1.11.4
 ```
-AL_PORTS=8443-8445 RE_PORT=443 AL_DOMAIN=my.domain.com RE_SNI=www.java.com API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t58FSRoAFohiYr9HFY bash -s -- 1.11.4 < <(curl -fsSL https://raw.githubusercontent.com/hide3110/sb-debian/main/install.sh)
+AL_PORTS=8443-8445 RE_PORT=443 AL_DOMAIN=my.domain.com RE_SNI=www.java.com API_TOKEN=K8Xo_z-Seyq0iyQ7icsio0t58FSRoAFohiYr9HFY bash <(curl -fsSL https://raw.githubusercontent.com/hide3110/sb-debian/main/install.sh) 1.11.4
 ```
 
 ## 详细说明
