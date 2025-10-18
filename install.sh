@@ -61,17 +61,17 @@ if [[ "$AL_PORTS" =~ ^([0-9]+)-([0-9]+)$ ]]; then
     
     SS_PORT=$START_PORT
     TR_PORT=$((START_PORT + 1))
-    WS_PORT=$((START_PORT + 2))
+    XTLS_PORT=$((START_PORT + 2))
     
-    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS-WS=$WS_PORT"
+    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS-XTLS=$XTLS_PORT"
 else
     # 逗号分隔表示法: 8443,9443,10443
     IFS=',' read -ra PORT_ARRAY <<< "$AL_PORTS"
     SS_PORT=${PORT_ARRAY[0]:-65031}
     TR_PORT=${PORT_ARRAY[1]:-65032}
-    WS_PORT=${PORT_ARRAY[2]:-65033}
+    XTLS_PORT=${PORT_ARRAY[2]:-65033}
     
-    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS-WS=$WS_PORT"
+    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS-XTLS=$XTLS_PORT"
 fi
 
 # 安装 sing-box
@@ -136,18 +136,15 @@ cat > "$CONFIG_DIR/config.json" << EOF
     },
     {
       "type": "vless",
-      "tag": "vless-wss-in",
+      "tag": "vless-in",
       "listen": "::",
-      "listen_port": ${WS_PORT},
+      "listen_port": ${XTLS_PORT},
       "users": [
         {
-          "uuid": "43a1f08a-d9ff-4aea-ac8a-cc622caf62a5"
+          "uuid": "43a1f08a-d9ff-4aea-ac8a-cc622caf62a5",
+          "flow": "xtls-rprx-vision"
         }
       ],
-      "transport": {
-        "type": "ws",
-        "path": "/42af2c6b"
-      },
       "tls": {
         "enabled": true,
         "server_name": "${AL_DOMAIN}",
@@ -164,9 +161,6 @@ cat > "$CONFIG_DIR/config.json" << EOF
             "api_token": "${API_TOKEN}"
           }
         }
-      },
-      "multiplex": {
-        "enabled": true
       }
     },
     {
@@ -246,7 +240,7 @@ echo ""
 print_info "端口配置:"
 print_info "  Shadowsocks: $SS_PORT"
 print_info "  Trojan (TLS): $TR_PORT"
-print_info "  VLESS-WS (TLS): $WS_PORT"
+print_info "  VLESS-XTLS (TLS): $XTLS_PORT"
 print_info "  VLESS-Reality: $RE_PORT"
 echo ""
 print_info "域名配置:"
