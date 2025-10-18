@@ -94,7 +94,7 @@ cat > "$CONFIG_DIR/config.json" << EOF
 {
   "log": {
     "disabled": false,
-    "level": "info",
+    "level": "error",
     "timestamp": true
   },
   "inbounds": [
