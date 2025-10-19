@@ -1,6 +1,6 @@
 #!/bin/bash
 # sing-box Debian/Ubuntu Linux 安装脚本
-# 使用方法: SB_VERSION=1.11.4 AL_PORTS="8443-8445" RE_PORT=443 AL_DOMAIN=example.com RE_SNI=www.example.com API_TOKEN=your_token bash install.sh
+# 使用方法: SB_VERSION=1.11.4 AL_PORTS="8443-8449" RE_PORT=443 AL_DOMAIN=example.com RE_SNI=www.example.com API_TOKEN=your_token bash install.sh
 
 set -e
 
@@ -30,7 +30,7 @@ fi
 
 # 配置变量（支持环境变量和位置参数，优先使用环境变量）
 SB_VERSION=${SB_VERSION:-${1:-1.11.15}}
-AL_PORTS=${AL_PORTS:-"65031,65032,65033"}
+AL_PORTS=${AL_PORTS:-"65031,65032,65033,65034,65035"}
 RE_PORT=${RE_PORT:-443}
 AL_DOMAIN=${AL_DOMAIN:-us.yyds.nyc.mn}
 RE_SNI=${RE_SNI:-www.cityofrc.us}
@@ -49,29 +49,29 @@ print_info "=========================================="
 
 # 解析端口（支持范围表示法）
 if [[ "$AL_PORTS" =~ ^([0-9]+)-([0-9]+)$ ]]; then
-    # 范围表示法: 8443-8445
+    # 范围表示法: 8443-8449
     START_PORT=${BASH_REMATCH[1]}
     END_PORT=${BASH_REMATCH[2]}
     PORT_COUNT=$((END_PORT - START_PORT + 1))
-    
-    if [ $PORT_COUNT -ne 3 ]; then
-        print_error "端口范围必须包含3个端口，当前为 $PORT_COUNT 个"
+    if [ $PORT_COUNT -ne 5 ]; then
+        print_error "端口范围必须包含5个端口，当前为 $PORT_COUNT 个"
         exit 1
     fi
-    
     SS_PORT=$START_PORT
     TR_PORT=$((START_PORT + 1))
-    WS_PORT=$((START_PORT + 2))
-    
-    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS-WS=$WS_PORT"
+    VL_PORT=$((START_PORT + 2))
+    TU_PORT=$((START_PORT + 3))
+    HY_PORT=$((START_PORT + 4))
+    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS=$VL_PORT, TUIC=$TU_PORT, Hysteria2=$HY_PORT"
 else
-    # 逗号分隔表示法: 8443,9443,10443
+    # 逗号分隔表示法: 8443,9443,10443,11443,12443
     IFS=',' read -ra PORT_ARRAY <<< "$AL_PORTS"
     SS_PORT=${PORT_ARRAY[0]:-65031}
     TR_PORT=${PORT_ARRAY[1]:-65032}
-    WS_PORT=${PORT_ARRAY[2]:-65033}
-    
-    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS-WS=$WS_PORT"
+    VL_PORT=${PORT_ARRAY[2]:-65033}
+    TU_PORT=${PORT_ARRAY[3]:-65034}
+    HY_PORT=${PORT_ARRAY[4]:-65035}
+    print_info "端口分配: SS=$SS_PORT, Trojan=$TR_PORT, VLESS=$VL_PORT, TUIC=$TU_PORT, Hysteria2=$HY_PORT"
 fi
 
 # 安装 sing-box
@@ -138,7 +138,7 @@ cat > "$CONFIG_DIR/config.json" << EOF
       "type": "vless",
       "tag": "vless-in",
       "listen": "::",
-      "listen_port": ${WS_PORT},
+      "listen_port": ${VL_PORT},
       "users": [
         {
           "uuid": "43a1f08a-d9ff-4aea-ac8a-cc622caf62a5"
@@ -150,6 +150,63 @@ cat > "$CONFIG_DIR/config.json" << EOF
         "alpn": [
           "h2",
           "http/1.1"
+        ],
+        "acme": {
+          "domain": "${AL_DOMAIN}",
+          "data_directory": "acme",
+          "email": "yyds88@gmail.com",
+          "dns01_challenge": {
+            "provider": "cloudflare",
+            "api_token": "${API_TOKEN}"
+          }
+        }
+      }
+    },
+    {
+      "type": "tuic",
+      "tag": "tuic-in",
+      "listen": "::",
+      "listen_port": ${TU_PORT},
+      "users": [
+        {
+          "uuid": "47013aa0-b699-4468-b6e4-56250573f3ab",
+          "password": "Ro060jU4fghfvTpHxiDQyA=="
+        }
+      ],
+      "congestion_control": "bbr",
+      "tls": {
+        "enabled": true,
+        "server_name": "${AL_DOMAIN}",
+        "alpn": [
+          "h3"
+        ],
+        "acme": {
+          "domain": "${AL_DOMAIN}",
+          "data_directory": "acme",
+          "email": "yyds88@gmail.com",
+          "dns01_challenge": {
+            "provider": "cloudflare",
+            "api_token": "${API_TOKEN}"
+          }
+        }
+      }
+    },
+    {
+      "type": "hysteria2",
+      "tag": "hysteria2-in",
+      "listen": "::",
+      "listen_port": ${HY_PORT},
+      "users": [
+        {
+          "password": "yK9VdaPrUZ5iZRLpv0ZNow=="
+        }
+      ],
+      "ignore_client_bandwidth": false,
+      "tls": {
+        "enabled": true,
+        "server_name": "${AL_DOMAIN}",
+        "alpn": [
+          "h3"
         ],
         "acme": {
           "domain": "${AL_DOMAIN}",
@@ -239,8 +296,10 @@ echo ""
 print_info "端口配置:"
 print_info "  Shadowsocks: $SS_PORT"
 print_info "  Trojan (TLS): $TR_PORT"
-print_info "  VLESS-WS (TLS): $WS_PORT"
-print_info "  VLESS-Reality: $RE_PORT"
+print_info "  VLESS (TLS): $VL_PORT"
+print_info "  TUIC: $TU_PORT"
+print_info "  Hysteria2: $HY_PORT"
+print_info "  Reality: $RE_PORT"
 echo ""
 print_info "域名配置:"
 print_info "  ACME 域名: $AL_DOMAIN"
