@@ -144,10 +144,6 @@ cat > "$CONFIG_DIR/config.json" << EOF
           "uuid": "43a1f08a-d9ff-4aea-ac8a-cc622caf62a5"
         }
       ],
-      "transport": {
-        "type": "ws",
-        "path": "/42af2c6b"
-      },
       "tls": {
         "enabled": true,
         "server_name": "${AL_DOMAIN}",
@@ -164,9 +160,6 @@ cat > "$CONFIG_DIR/config.json" << EOF
             "api_token": "${API_TOKEN}"
           }
         }
-      },
-      "multiplex": {
-        "enabled": true
       }
     },
     {
