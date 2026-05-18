@@ -75,11 +75,22 @@ fi
 
 # 安装 sing-box
 print_info "正在安装 sing-box $SB_VERSION ..."
-if curl -fsSL https://sing-box.app/install.sh | bash -s -- --version "$SB_VERSION" > /dev/null 2>&1; then
+
+systemctl stop sing-box.service 2>/dev/null || true
+
+curl -fsSL -o /tmp/sing-box-official-install.sh https://sing-box.app/install.sh
+chmod +x /tmp/sing-box-official-install.sh
+
+if yes Y | DEBIAN_FRONTEND=noninteractive bash /tmp/sing-box-official-install.sh --version "$SB_VERSION" 2>&1 | tee /tmp/sing-box-install.log; then
     print_info "sing-box $SB_VERSION 安装成功"
 else
-    print_error "sing-box 安装失败"
-    exit 1
+    print_warning "官方安装脚本返回失败，尝试修复 dpkg 未完成配置..."
+    if yes Y | DEBIAN_FRONTEND=noninteractive dpkg --force-confnew --configure -a 2>&1 | tee -a /tmp/sing-box-install.log; then
+        print_info "dpkg 修复完成"
+    else
+        print_error "sing-box 安装失败，日志见: /tmp/sing-box-install.log"
+        exit 1
+    fi
 fi
 
 # 创建目录
