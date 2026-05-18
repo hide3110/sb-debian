@@ -29,7 +29,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # 配置变量（支持环境变量和位置参数，优先使用环境变量）
-SB_VERSION=${SB_VERSION:-${1:-1.11.15}}
+SB_VERSION=${SB_VERSION:-${1:-1.13.12}}
 AL_PORTS=${AL_PORTS:-"65031,65032,65033,65034,65035"}
 RE_PORT=${RE_PORT:-443}
 AL_DOMAIN=${AL_DOMAIN:-us.yyds.nyc.mn}
