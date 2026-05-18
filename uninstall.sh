@@ -1,6 +1,6 @@
 #!/bin/bash
-# sing-box Debian/Ubuntu 完全卸载脚本（增强版）
-# 适用于官方 install.sh 安装方式
+# sing-box Debian/Ubuntu 完全卸载脚本（增强版，保留证书）
+# 卸载程序和配置，但保留 ACME/证书缓存以避免重复申请
 
 set -e
 
@@ -28,63 +28,54 @@ fi
 
 echo ""
 info "======================================"
-info "开始彻底卸载 sing-box ..."
+info "开始彻底卸载 sing-box （保留证书）..."
 info "======================================"
 echo ""
 
 # 停止服务
 info "[1/8] 停止 sing-box 服务..."
-
 systemctl stop sing-box.service 2>/dev/null || true
 systemctl disable sing-box.service 2>/dev/null || true
 systemctl mask sing-box.service 2>/dev/null || true
 
 # 杀掉残留进程
 info "[2/8] 清理残留进程..."
-
 pkill -9 sing-box 2>/dev/null || true
 killall -9 sing-box 2>/dev/null || true
-
 sleep 1
 
 # 删除 systemd 服务
 info "[3/8] 删除 systemd 服务..."
-
 rm -f /etc/systemd/system/sing-box.service
 rm -f /lib/systemd/system/sing-box.service
 rm -f /usr/lib/systemd/system/sing-box.service
 
 # 删除程序文件
 info "[4/8] 删除程序文件..."
-
 rm -f /usr/local/bin/sing-box
 rm -f /usr/bin/sing-box
 rm -f /bin/sing-box
 
 # 删除配置和数据
 info "[5/8] 删除配置与数据..."
-
 rm -rf /etc/sing-box
-rm -rf /var/lib/sing-box
+rm -rf /var/lib/sing-box/config
 rm -rf /usr/local/etc/sing-box
 
-# 删除 ACME/证书缓存
-info "[6/8] 删除证书缓存..."
-
-rm -rf /root/.acme.sh
-rm -rf /etc/ssl/private/sing-box*
-rm -rf /etc/ssl/certs/sing-box*
-rm -rf /var/lib/sing-box/acme
+# 删除 ACME/证书缓存（保留）
+info "[6/8] 保留证书和 ACME 缓存，避免重复申请"
+# rm -rf /root/.acme.sh
+# rm -rf /var/lib/sing-box/acme
+# rm -rf /etc/ssl/private/sing-box*
+# rm -rf /etc/ssl/certs/sing-box*
 
 # 重载 systemd
 info "[7/8] 重载 systemd..."
-
 systemctl daemon-reload
 systemctl reset-failed
 
 # 删除可能残留的 tmp 文件
 info "[8/8] 清理临时文件..."
-
 rm -f /tmp/sing-box-official-install.sh
 rm -f /tmp/sing-box-install.log
 
@@ -106,9 +97,8 @@ fi
 
 echo ""
 info "======================================"
-info "✓ sing-box 已彻底卸载完成！"
+info "✓ sing-box 已卸载完成（证书保留）"
 info "======================================"
 echo ""
 
-echo "建议执行："
-echo "reboot"
+echo "提示：保留证书，重新安装 sing-box 时不会重复申请证书"
